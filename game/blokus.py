@@ -43,13 +43,14 @@ class BlokusBoard:
 
         self.is_red_next = True
 
-    def get_placement_at(self, x_coord, y_coord):
+    def get_placement_at(self, coordinate):
         """
         Obtain the placement at the specified coordinate on the board.
 
         Placement information will be returned as BlokusSquareData.
         ValueError is raised when the coordinate is out of range.
         """
+        x_coord, y_coord = coordinate
         if x_coord >= self._size or y_coord >= self._size:
             raise ValueError("x or y is out of range! x: {0}, y: {1}".format(x_coord, y_coord))
         return self._board[x_coord][y_coord]
@@ -58,14 +59,52 @@ class BlokusBoard:
         """Obtain the size of the board."""
         return self._size
 
+    def _is_placement_valid(self, placement):
+        placement_num = len(placement)
+        if placement_num < 3 or placement_num > 5:
+            return False
+
+        return self._is_placement_continuous(placement) \
+            and self._is_placement_target_empty(placement)
+
+    def _is_placement_continuous(self, placement):
+        placement_num = len(placement)
+
+        for i in range(placement_num):
+            check_target_cell = placement[i]
+            is_adjuscent_found = False
+
+            for j in range(placement_num):
+                if j == i:
+                    continue
+
+                if distance.manhattan_2d(check_target_cell, placement[j]) == 1:
+                    is_adjuscent_found = True
+                    break
+
+            if not is_adjuscent_found:
+                return False
+        return True
+
+    def _is_placement_target_empty(self, placement):
+        for i in range(len(placement)):
+            old_placement = self.get_placement_at(placement[i])
+            if old_placement is not BlokusSquareData.EMPTY:
+                return False
+        return True
+
     def place(self, blokus_placement):
         """
         Execute a given placement.
         Returns True when executed successfully, otherwise False is returned.
         """
-        placements = blokus_placement.get_placement_list()
+        placements_list = blokus_placement.get_placement_list()
+
+        if not self._is_placement_valid(placements_list):
+            return False
+
         placement_data = BlokusSquareData.get_data(blokus_placement)
-        for placement in placements:
+        for placement in placements_list:
             self._board[placement[0]][placement[1]] = placement_data
 
         self.is_red_next = not self.is_red_next
@@ -87,42 +126,6 @@ class BlokusPlacement:
         """
         self._placement = sorted(placement_array, lambda coord: coord[0])
         self._old_board_state = board_state
-
-        if not self._is_placement_valid():
-            raise InvalidPlacementError(board_state, placement_array)
-
-    def _is_placement_valid(self):
-        placement_num = len(self._placement)
-        if placement_num < 3 or placement_num > 5:
-            return False
-
-        return self._is_placement_continuous() and self._is_placement_target_empty()
-
-    def _is_placement_continuous(self):
-        placement_num = len(self._placement)
-
-        for i in range(placement_num):
-            check_target_cell = self._placement[i]
-            is_adjuscent_found = False
-
-            for j in range(placement_num):
-                if j == i:
-                    continue
-
-                if distance.manhattan_2d(check_target_cell, self._placement[j]) == 1:
-                    is_adjuscent_found = True
-                    break
-
-            if not is_adjuscent_found:
-                return False
-        return True
-
-    def _is_placement_target_empty(self):
-        for i in range(len(self._placement)):
-            old_placement = self._old_board_state.get_placement_at(self._placement[i])
-            if old_placement is not BlokusSquareData.EMPTY:
-                return False
-        return True
 
     def get_placement_list(self):
         """Get the placement list"""
