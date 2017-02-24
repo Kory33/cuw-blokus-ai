@@ -5,7 +5,7 @@ The module includes basic structures that represents a status of a blokus sessio
 from enum import Enum
 
 from game.blokus_exception import InvalidPlacementError
-
+import game.distance as distance
 
 class BlokusSquareData(Enum):
     """Class which represents a data in a square of the blokus board."""
@@ -54,6 +54,7 @@ class BlokusPlacement:
     def __init__(self, placement_array, board_state):
         """
         placement_array is a two-dimentional array which stores pairs of coordinates.
+        board_state is a status of the game board before the placement takes place.
 
         Raises an InvalidPlacementError when an illegal placement is given to the constructor.
         """
@@ -73,33 +74,21 @@ class BlokusPlacement:
     def _is_placement_continuous(self):
         placement_num = len(self._placement)
 
-        # scan the board towards positive x and see if each y's are continuous
-        # assuming that the placement_array is already sorted by ascending-x values
-        previous_y_values = []
-        scan_x_coord = self._placement[0][0]
-        placement_counter = 0
+        for i in range(placement_num):
+            check_target_cell = self._placement[i]
+            is_adjuscent_found = False
 
-        while True:
-            y_values = []
+            for j in range(placement_num):
+                if j == i:
+                    continue
 
-            while self._placement[placement_counter][0] == scan_x_coord:
-                placement = self._placement[placement_counter]
-                placement_y = placement[1]
+                if distance.manhattan_2d(check_target_cell, self._placement[j]) == 1:
+                    is_adjuscent_found = True
+                    break
 
-                # return false the current column is not connected to the previous column
-                if placement_y not in previous_y_values:
-                    return False
-
-                y_values.append(placement_y)
-                placement_counter += 1
-
-                # return true when all the placements are checked
-                if placement_counter == placement_num:
-                    return True
-
-            scan_x_coord += 1
-            previous_y_values = y_values
-
+            if not is_adjuscent_found:
+                return False
+        return True
 
 class BlokusGame:
     """Class which represents a game session."""
