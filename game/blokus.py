@@ -1,9 +1,14 @@
+"""
+The module includes basic structures that represents a status of a blokus session.
+"""
+
 from enum import Enum
 
-from blokus_exception import InvalidPlacementError
+from game.blokus_exception import InvalidPlacementError
 
 
 class BlokusSquareData(Enum):
+    """Class which represents a data in a square of the blokus board."""
     EMPTY = 0
     PLAYER_1 = 1
     PLAYER_2 = 2
