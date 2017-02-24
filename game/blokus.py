@@ -59,13 +59,17 @@ class BlokusBoard:
         return self._size
 
     def place(self, blokus_placement):
-        """Execute a given placement"""
+        """
+        Execute a given placement.
+        Returns True when executed successfully, otherwise False is returned.
+        """
         placements = blokus_placement.get_placement_list()
         placement_data = BlokusSquareData.get_data(blokus_placement)
         for placement in placements:
             self._board[placement[0]][placement[1]] = placement_data
 
         self.is_red_next = not self.is_red_next
+        return True
 
 
 class BlokusPlacement:
