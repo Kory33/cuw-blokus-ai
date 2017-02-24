@@ -76,14 +76,14 @@ class BlokusPlacement:
                 placement = self._placement[placement_counter]
                 placement_y = placement[1]
 
-                # if the current column is not connected to the previous column
+                # return false the current column is not connected to the previous column
                 if placement_y not in previous_y_values:
                     return False
 
                 y_values.append(placement_y)
                 placement_counter += 1
 
-                # when all the placements are checked
+                # return true when all the placements are checked
                 if placement_counter == placement_num:
                     return True
 
