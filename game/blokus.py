@@ -69,7 +69,7 @@ class BlokusPlacement:
         if placement_num < 3 or placement_num > 5:
             return False
 
-        return self._is_placement_continuous()
+        return self._is_placement_continuous() and self._is_placement_target_empty()
 
     def _is_placement_continuous(self):
         placement_num = len(self._placement)
@@ -89,6 +89,14 @@ class BlokusPlacement:
             if not is_adjuscent_found:
                 return False
         return True
+
+    def _is_placement_target_empty(self):
+        for i in range(len(self._placement)):
+            old_placement = self._old_board_state.get_placement_at(self._placement[i])
+            if old_placement is not BlokusSquareData.EMPTY:
+                return False
+        return True
+
 
 class BlokusGame:
     """Class which represents a game session."""
