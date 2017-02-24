@@ -10,12 +10,21 @@ import game.distance as distance
 class BlokusSquareData(Enum):
     """Class which represents a data in a square of the blokus board."""
     EMPTY = 0
-    PLAYER_1 = 1
-    PLAYER_2 = 2
-    PLAYER_3 = 3
-    ENEMY_1 = -1
-    ENEMY_2 = -2
-    ENEMY_3 = -3
+    RED_3 = 3
+    RED_4 = 4
+    RED_5 = 5
+    BLUE_3 = -3
+    BLUE_4 = -4
+    BLUE_5 = -5
+
+    @staticmethod
+    def get_data(placement):
+        """Obtain the data corresponding to the placement"""
+        target_num = len(placement.get_placement())
+        if not placement.is_red:
+            target_num *= -1
+
+        return BlokusSquareData(target_num)
 
 
 class BlokusBoard:
@@ -28,6 +37,11 @@ class BlokusBoard:
         """
         self._size = size
         self._board = [[BlokusSquareData.EMPTY] * size] * size
+
+        self.has_red_played = False
+        self.has_blue_played = False
+
+        self.is_red_next = True
 
     def get_placement_at(self, x_coord, y_coord):
         """
@@ -43,6 +57,15 @@ class BlokusBoard:
     def get_size(self):
         """Obtain the size of the board."""
         return self._size
+
+    def place(self, blokus_placement):
+        """Execute a given placement"""
+        placements = blokus_placement.get_placement_list()
+        placement_data = BlokusSquareData.get_data(blokus_placement)
+        for placement in placements:
+            self._board[placement[0]][placement[1]] = placement_data
+
+        self.is_red_next = not self.is_red_next
 
 
 class BlokusPlacement:
@@ -97,6 +120,13 @@ class BlokusPlacement:
                 return False
         return True
 
+    def get_placement_list(self):
+        """Get the placement list"""
+        return self._placement[::]
+
+    def is_red(self):
+        """Returns true if the placement will be executed by the red."""
+        return self._old_board_state.is_red_next
 
 class BlokusGame:
     """Class which represents a game session."""
