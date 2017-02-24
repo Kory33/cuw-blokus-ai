@@ -18,11 +18,13 @@ class BlokusSquareData(Enum):
     BLUE_5 = -5
 
     def is_red(self):
+        """Returns True if the data represents Red cell"""
         return self is BlokusSquareData.RED_3 or \
             self is BlokusSquareData.RED_4 or \
             self is BlokusSquareData.RED_5
-    
+
     def is_blue(self):
+        """Returns True if the data represents Blue cell"""
         return self is BlokusSquareData.BLUE_3 or \
             self is BlokusSquareData.BLUE_4 or \
             self is BlokusSquareData.BLUE_5
@@ -33,7 +35,7 @@ class BlokusSquareData(Enum):
         target_num = len(placement.get_placement())
         if not placement.is_red:
             target_num *= -1
-        
+
         return BlokusSquareData(target_num)
 
 
