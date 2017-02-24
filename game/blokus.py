@@ -14,39 +14,44 @@ class BlokusSquareData(Enum):
 
 
 class BlokusBoard:
-    """Class which represents a board of blokus game
-
-    The size of the board is defined as a number of squares on a side.
-    Hence the board will have 'size ** 2' number of squares."""
+    """Class which represents a board of blokus game"""
 
     def __init__(self, size=12):
+        """
+        The size of the board is defined as a number of squares on a side.
+        Hence the board will have 'size ** 2' number of squares.
+        """
         self._size = size
         self._board = [[BlokusSquareData.EMPTY] * size] * size
 
-    """Obtain the placement at the specified coordinate on the board.
-
-    Placement information will be returned as BlokusSquareData.
-    ValueError is raised when the coordinate is out of range."""
-
     def get_placement_at(self, x, y):
+        """
+        Obtain the placement at the specified coordinate on the board.
+
+        Placement information will be returned as BlokusSquareData.
+        ValueError is raised when the coordinate is out of range.
+        """
         if x >= self.size or y >= self.size:
             raise ValueError("x or y is out of range! x: {0}, y: {1}".format(x, y))
         return self._board[x][y]
 
-    """Obtain the size of the board."""
-
     def get_size(self):
+        """Obtain the size of the board."""
         return self._size
 
 
 class BlokusPlacement:
-    """Class which represents a placement.
+    """
+    Class which represents a placement.
     A placement is created once in each player turn, hence is a step in the game.
-
-    placement_array is a two-dimentional array which stores pairs of coordinates.
-    Raises an InvalidPlacementError when an illegal placement is given to the constructor."""
+    """
 
     def __init__(self, placement_array, board_state):
+        """
+        placement_array is a two-dimentional array which stores pairs of coordinates.
+
+        Raises an InvalidPlacementError when an illegal placement is given to the constructor.
+        """
         self._placement = sorted(placement_array, lambda coord: coord[0])
         self._old_board_state = board_state
 
