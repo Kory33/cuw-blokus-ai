@@ -17,13 +17,23 @@ class BlokusSquareData(Enum):
     BLUE_4 = -4
     BLUE_5 = -5
 
+    def is_red(self):
+        return self is BlokusSquareData.RED_3 or \
+            self is BlokusSquareData.RED_4 or \
+            self is BlokusSquareData.RED_5
+    
+    def is_blue(self):
+        return self is BlokusSquareData.BLUE_3 or \
+            self is BlokusSquareData.BLUE_4 or \
+            self is BlokusSquareData.BLUE_5
+
     @staticmethod
     def get_data(placement):
         """Obtain the data corresponding to the placement"""
         target_num = len(placement.get_placement())
         if not placement.is_red:
             target_num *= -1
-
+        
         return BlokusSquareData(target_num)
 
 
@@ -59,14 +69,6 @@ class BlokusBoard:
         """Obtain the size of the board."""
         return self._size
 
-    def _is_placement_valid(self, placement):
-        placement_num = len(placement)
-        if placement_num < 3 or placement_num > 5:
-            return False
-
-        return self._is_placement_continuous(placement) \
-            and self._is_placement_target_empty(placement)
-
     def _is_placement_continuous(self, placement):
         placement_num = len(placement)
 
@@ -92,6 +94,56 @@ class BlokusBoard:
             if old_placement is not BlokusSquareData.EMPTY:
                 return False
         return True
+
+    def _is_first_cell_covered(self, placement_list):
+        """Returns true if and only if the placement is the first action and
+        the beginning cell is covered."""
+        if self.is_red_next:
+            return self.has_red_played and ([2, 2] in placement_list)
+        else:
+            return self.has_blue_played and ([9, 9] in placement_list)
+
+    def _is_placement_compatible(self, placement_list):
+        corner_vectors = [[1, 1], [-1, 1], [-1, -1], [1, -1]]
+        adjacent_vectors = [[1, 0], [0, 1], [-1, 0], [0, -1]]
+
+        is_on_corner = False
+        for cell in placement_list:
+            if not is_on_corner:
+                # check if the cell is on a corner of existing player region
+                for vector in corner_vectors:
+                    target_coord = [cell[0] + vector[0], cell[1] + vector[1]]
+                    target_cell = self.get_placement_at(target_coord)
+
+                    if self.is_red_next:
+                        is_on_corner = target_cell.is_red()
+                    else:
+                        is_on_corner = target_cell.is_blue()
+
+                    if is_on_corner:
+                        break
+
+            # check that the cell is not on a side of existing player region
+            for vector in adjacent_vectors:
+                target_coord = [cell[0] + vector[0], cell[1] + vector[1]]
+                target_cell = self.get_placement_at(target_coord)
+
+                if self.is_red_next and target_cell.is_red():
+                    return False
+                elif not self.is_red_next and target_cell.is_blue():
+                    return False
+
+        return is_on_corner
+
+    def _is_placement_valid(self, placement):
+        placement_num = len(placement)
+        if placement_num < 3 or placement_num > 5:
+            return False
+
+        return (self._is_placement_continuous(placement) and
+                self._is_placement_target_empty(placement) and
+                self._is_first_cell_covered(placement) and
+                self._is_placement_compatible(placement))
 
     def place(self, blokus_placement):
         """
