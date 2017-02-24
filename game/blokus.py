@@ -24,16 +24,16 @@ class BlokusBoard:
         self._size = size
         self._board = [[BlokusSquareData.EMPTY] * size] * size
 
-    def get_placement_at(self, x, y):
+    def get_placement_at(self, x_coord, y_coord):
         """
         Obtain the placement at the specified coordinate on the board.
 
         Placement information will be returned as BlokusSquareData.
         ValueError is raised when the coordinate is out of range.
         """
-        if x >= self.size or y >= self.size:
-            raise ValueError("x or y is out of range! x: {0}, y: {1}".format(x, y))
-        return self._board[x][y]
+        if x_coord >= self._size or y_coord >= self._size:
+            raise ValueError("x or y is out of range! x: {0}, y: {1}".format(x_coord, y_coord))
+        return self._board[x_coord][y_coord]
 
     def get_size(self):
         """Obtain the size of the board."""
