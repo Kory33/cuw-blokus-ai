@@ -86,9 +86,9 @@ class BlokusBoard:
                 return False
         return True
 
-    def _is_placement_target_empty(self, placement):
-        for i in range(len(placement)):
-            old_placement = self.get_placement_at(placement[i])
+    def _is_placement_target_empty(self, placement_list):
+        for placement in placement_list:
+            old_placement = self.get_placement_at(placement)
             if old_placement is not BlokusSquareData.EMPTY:
                 return False
         return True
@@ -96,12 +96,14 @@ class BlokusBoard:
     def place(self, blokus_placement):
         """
         Execute a given placement.
-        Returns True when executed successfully, otherwise False is returned.
+        Returns True when executed successfully.
+
+        Raises InvalidPlacementError when the placement is invalid.
         """
         placements_list = blokus_placement.get_placement_list()
 
         if not self._is_placement_valid(placements_list):
-            return False
+            raise InvalidPlacementError(self, blokus_placement)
 
         placement_data = BlokusSquareData.get_data(blokus_placement)
         for placement in placements_list:
