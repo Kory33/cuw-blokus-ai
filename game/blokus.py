@@ -75,8 +75,8 @@ class BlokusGame:
 
     def __init__(self, board_size=12):
         self._board = BlokusBoard(size=board_size)
-        self.has_red_played = False
-        self.has_blue_played = False
+        self._has_red_played = False
+        self._has_blue_played = False
 
         self.is_red_next = True
 
@@ -113,9 +113,9 @@ class BlokusGame:
         """Returns true if and only if the placement is the first action and
         the beginning cell is covered."""
         if self.is_red_next:
-            return self.has_red_played and ([2, 2] in placement_list)
+            return self._has_red_played and ([2, 2] in placement_list)
         else:
-            return self.has_blue_played and ([9, 9] in placement_list)
+            return self._has_blue_played and ([9, 9] in placement_list)
 
     def _is_same_color_found_on(self, placement_list, direction_vectors):
         """
@@ -178,10 +178,10 @@ class BlokusGame:
         placement_num = len(blokus_placement_list)
         if self.is_red_next:
             self.red_remaining[placement_num - 3] -= 1
-            self.has_red_played = True
+            self._has_red_played = True
         else:
             self.blue_remaining[placement_num - 3] -= 1
-            self.has_blue_played = True
+            self._has_blue_played = True
 
         self.is_red_next = not self.is_red_next
         return True
