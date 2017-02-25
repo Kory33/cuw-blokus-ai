@@ -144,8 +144,8 @@ class BlokusBoard:
 
         return (self._is_placement_continuous(placement) and
                 self._is_placement_target_empty(placement) and
-                self._is_first_cell_covered(placement) and
-                self._is_placement_compatible(placement))
+                (self._is_first_cell_covered(placement) or
+                 self._is_placement_compatible(placement)))
 
     def place(self, blokus_placement_list):
         """
