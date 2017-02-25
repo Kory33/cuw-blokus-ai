@@ -80,6 +80,8 @@ class BlokusGame:
 
         self.is_red_next = True
 
+        self.red_remaining = [10, 5, 2]
+        self.blue_remaining = [10, 5, 2]
 
     def _is_placement_continuous(self, placement):
         placement_num = len(placement)
@@ -147,6 +149,14 @@ class BlokusGame:
 
         return is_on_corner
 
+    def _is_source_in_hand(self, source_number):
+        checktarget = []
+        if self.is_red_next:
+            checktarget = self.red_remaining
+        else:
+            checktarget = self.blue_remaining
+        return checktarget[source_number - 3] > 0
+
     def _is_placement_valid(self, placement):
         placement_num = len(placement)
         if placement_num < 3 or placement_num > 5:
@@ -155,7 +165,8 @@ class BlokusGame:
         return (self._is_placement_continuous(placement) and
                 self._is_placement_target_empty(placement) and
                 (self._is_first_cell_covered(placement) or
-                 self._is_placement_compatible(placement)))
+                 self._is_placement_compatible(placement)) and
+                self._is_source_in_hand(placement_num))
 
     def place(self, blokus_placement_list):
         """
@@ -171,9 +182,12 @@ class BlokusGame:
         for coord in blokus_placement_list:
             self._board.set(coord, placement_data)
 
+        placement_num = len(blokus_placement_list)
         if self.is_red_next:
+            self.red_remaining[placement_num - 3] -= 1
             self.has_red_played = True
         else:
+            self.blue_remaining[placement_num - 3] -= 1
             self.has_blue_played = True
 
         self.is_red_next = not self.is_red_next
