@@ -50,7 +50,7 @@ class BlokusBoard:
         self._size = size
         self._board = [[BlokusSquareData.EMPTY] * size] * size
 
-    def get_placement_at(self, coordinate):
+    def get_data_at(self, coordinate):
         """
         Obtain the placement at the specified coordinate on the board.
 
@@ -104,7 +104,7 @@ class BlokusGame:
 
     def _is_placement_target_empty(self, placement_list):
         for placement in placement_list:
-            old_placement = self._board.get_placement_at(placement)
+            old_placement = self._board.get_data_at(placement)
             if old_placement is not BlokusSquareData.EMPTY:
                 return False
         return True
@@ -129,7 +129,7 @@ class BlokusGame:
         for cell in placement_list:
             for vector in direction_vectors:
                 target_coord = [cell[0] + vector[0], cell[1] + vector[1]]
-                target_cell_data = self._board.get_placement_at(target_coord)
+                target_cell_data = self._board.get_data_at(target_coord)
 
                 if self.is_red_next and target_cell_data.is_red():
                     return True
