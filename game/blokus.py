@@ -125,7 +125,6 @@ class BlokusGame:
         direction_vectors should be a 2 dimentional array, each element representing a
         relative vector from the inspect target to the check direction.
         """
-        direction_vectors = [[1, 1], [-1, 1], [-1, -1], [1, -1]]
         for cell in cells:
             for vector in direction_vectors:
                 target_coord = [cell[0] + vector[0], cell[1] + vector[1]]
