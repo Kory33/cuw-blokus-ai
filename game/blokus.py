@@ -117,39 +117,23 @@ class BlokusGame:
         else:
             return self.has_blue_played and ([9, 9] in placement_list)
 
-    def _is_placement_on_corner(self, placement_list):
+    def _is_same_color_found_on(self, placement_list, direction_vectors):
         """
-        Returns true if the placement is on at least one corner of
-        the existing player region.
+        Returns true if there is at least one same-coloured cell from the new placement region
+        towards the direction_vectors.
+
+        direction_vectors should be a 2 dimentional array, each element representing a
+        relative vector from the inspect target to the check direction.
         """
-        corner_vectors = [[1, 1], [-1, 1], [-1, -1], [1, -1]]
+        direction_vectors = [[1, 1], [-1, 1], [-1, -1], [1, -1]]
         for cell in placement_list:
-            for vector in corner_vectors:
+            for vector in direction_vectors:
                 target_coord = [cell[0] + vector[0], cell[1] + vector[1]]
                 target_cell_data = self._board.get_placement_at(target_coord)
 
                 if self.is_red_next and target_cell_data.is_red():
                     return True
                 elif not self.is_red_next and target_cell_data.is_blue():
-                    return True
-
-        return False
-
-    def _is_placement_on_side(self, placement_list):
-        """
-        Validates that the placement is on a corner of existing player region AND
-        that the placement is NOT on a side of existing player region.
-        """
-        side_vectors = [[1, 0], [0, 1], [-1, 0], [0, -1]]
-        for cell in placement_list:
-            # check that the cell is not on a side of existing player region
-            for vector in side_vectors:
-                target_coord = [cell[0] + vector[0], cell[1] + vector[1]]
-                target_cell = self._board.get_placement_at(target_coord)
-
-                if self.is_red_next and target_cell.is_red():
-                    return True
-                elif not self.is_red_next and target_cell.is_blue():
                     return True
 
         return False
@@ -167,11 +151,14 @@ class BlokusGame:
         if placement_num < 3 or placement_num > 5:
             return False
 
+        corner_vectors = [[1, 1], [-1, 1], [-1, -1], [1, -1]]
+        side_vectors = [[1, 0], [0, 1], [-1, 0], [0, -1]]
+
         return (self._is_placement_continuous(placement) and
                 self._is_placement_target_empty(placement) and
                 (self._is_first_cell_covered(placement) or
-                 self._is_placement_on_corner(placement)) and
-                not self._is_placement_on_side(placement) and
+                 self._is_same_color_found_on(placement, corner_vectors)) and
+                not self._is_same_color_found_on(placement, side_vectors) and
                 self._is_source_in_hand(placement_num))
 
     def place(self, blokus_placement_list):
