@@ -164,7 +164,9 @@ class BlokusGame:
     def place(self, blokus_placement_list):
         """
         Execute a given placement.
-        Returns True when executed successfully.
+        Returns True when the turn ends and the board waits for the next player.
+        False return value indicates that the next player does not have any placement,
+        hence the player turn remains the same.
 
         Raises InvalidPlacementError when the placement is invalid.
         """
@@ -183,5 +185,12 @@ class BlokusGame:
             self.blue_remaining[placement_num - 3] -= 1
             self.has_blue_played = True
 
+        if len(self.get_all_possible_placements()):
+            return False
+
         self.is_red_next = not self.is_red_next
         return True
+
+    def get_all_possible_placements(self):
+        # TODO implementation
+        return None
