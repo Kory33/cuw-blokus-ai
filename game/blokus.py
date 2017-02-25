@@ -88,17 +88,17 @@ class BlokusGame:
 
         for i in range(placement_num):
             check_target_cell = placement[i]
-            is_adjuscent_found = False
+            is_adjacent_found = False
 
             for j in range(placement_num):
                 if j == i:
                     continue
 
                 if distance.manhattan_2d(check_target_cell, placement[j]) == 1:
-                    is_adjuscent_found = True
+                    is_adjacent_found = True
                     break
 
-            if not is_adjuscent_found:
+            if not is_adjacent_found:
                 return False
         return True
 
@@ -118,8 +118,12 @@ class BlokusGame:
             return self.has_blue_played and ([9, 9] in placement_list)
 
     def _is_placement_compatible(self, placement_list):
+        """
+        Validates that the placement is on a corner of existing player region AND
+        that the placement is NOT on a side of existing player region.
+        """
         corner_vectors = [[1, 1], [-1, 1], [-1, -1], [1, -1]]
-        adjacent_vectors = [[1, 0], [0, 1], [-1, 0], [0, -1]]
+        side_vectors = [[1, 0], [0, 1], [-1, 0], [0, -1]]
 
         is_on_corner = False
         for cell in placement_list:
@@ -138,7 +142,7 @@ class BlokusGame:
                         break
 
             # check that the cell is not on a side of existing player region
-            for vector in adjacent_vectors:
+            for vector in side_vectors:
                 target_coord = [cell[0] + vector[0], cell[1] + vector[1]]
                 target_cell = self._board.get_placement_at(target_coord)
 
