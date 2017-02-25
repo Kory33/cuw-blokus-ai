@@ -168,9 +168,8 @@ class BlokusGame:
         Returns True when the player can place on the specified cell.
         This method only does empty check and adjacent-not-same-color check.
         """
-        side_vectors = [[1, 0], [0, 1], [-1, 0], [0, -1]]
         return (self._is_placement_target_empty([cell]) and
-                not self._is_same_color_found_on([cell], side_vectors))
+                not self._is_same_color_on_side([cell]))
 
     def place(self, cells_list):
         """
