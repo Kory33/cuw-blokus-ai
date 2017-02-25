@@ -83,18 +83,18 @@ class BlokusGame:
         self.red_remaining = [10, 5, 2]
         self.blue_remaining = [10, 5, 2]
 
-    def _is_placement_continuous(self, placement):
-        placement_num = len(placement)
+    def _is_placement_continuous(self, cells):
+        placement_num = len(cells)
 
         for i in range(placement_num):
-            check_target_cell = placement[i]
+            check_target_cell = cells[i]
             is_adjacent_found = False
 
             for j in range(placement_num):
                 if j == i:
                     continue
 
-                if distance.manhattan_2d(check_target_cell, placement[j]) == 1:
+                if distance.manhattan_2d(check_target_cell, cells[j]) == 1:
                     is_adjacent_found = True
                     break
 
@@ -102,22 +102,22 @@ class BlokusGame:
                 return False
         return True
 
-    def _is_placement_target_empty(self, placement_list):
-        for placement in placement_list:
-            old_placement = self._board.get_data_at(placement)
-            if old_placement is not BlokusSquareData.EMPTY:
+    def _is_placement_target_empty(self, cells):
+        for cell in cells:
+            cell_data = self._board.get_data_at(cell)
+            if cell_data is not BlokusSquareData.EMPTY:
                 return False
         return True
 
-    def _is_first_cell_covered(self, placement_list):
+    def _is_first_cell_covered(self, cells):
         """Returns true if and only if the placement is the first action and
         the beginning cell is covered."""
         if self.is_red_next:
-            return self._has_red_played and ([2, 2] in placement_list)
+            return self._has_red_played and ([2, 2] in cells)
         else:
-            return self._has_blue_played and ([9, 9] in placement_list)
+            return self._has_blue_played and ([9, 9] in cells)
 
-    def _is_same_color_found_on(self, placement_list, direction_vectors):
+    def _is_same_color_found_on(self, cells, direction_vectors):
         """
         Returns true if there is at least one same-coloured cell from the new placement region
         towards the direction_vectors.
@@ -126,7 +126,7 @@ class BlokusGame:
         relative vector from the inspect target to the check direction.
         """
         direction_vectors = [[1, 1], [-1, 1], [-1, -1], [1, -1]]
-        for cell in placement_list:
+        for cell in cells:
             for vector in direction_vectors:
                 target_coord = [cell[0] + vector[0], cell[1] + vector[1]]
                 target_cell_data = self._board.get_data_at(target_coord)
@@ -138,44 +138,44 @@ class BlokusGame:
 
         return False
 
-    def _is_source_in_hand(self, source_number):
+    def _is_source_in_hand(self, cells):
         checktarget = []
         if self.is_red_next:
             checktarget = self.red_remaining
         else:
             checktarget = self.blue_remaining
-        return checktarget[source_number - 3] > 0
+        return checktarget[len(cells) - 3] > 0
 
-    def _is_placement_valid(self, placement):
-        placement_num = len(placement)
-        if placement_num < 3 or placement_num > 5:
+    def _is_placement_valid(self, cells):
+        cells_num = len(cells)
+        if cells_num < 3 or cells_num > 5:
             return False
 
         corner_vectors = [[1, 1], [-1, 1], [-1, -1], [1, -1]]
         side_vectors = [[1, 0], [0, 1], [-1, 0], [0, -1]]
 
-        return (self._is_placement_continuous(placement) and
-                self._is_placement_target_empty(placement) and
-                (self._is_first_cell_covered(placement) or
-                 self._is_same_color_found_on(placement, corner_vectors)) and
-                not self._is_same_color_found_on(placement, side_vectors) and
-                self._is_source_in_hand(placement_num))
+        return (self._is_placement_continuous(cells) and
+                self._is_placement_target_empty(cells) and
+                (self._is_first_cell_covered(cells) or
+                 self._is_same_color_found_on(cells, corner_vectors)) and
+                not self._is_same_color_found_on(cells, side_vectors) and
+                self._is_source_in_hand(cells_num))
 
-    def place(self, blokus_placement_list):
+    def place(self, cells_list):
         """
         Execute a given placement.
         Returns True when placed successfully.
 
         Raises InvalidPlacementError when the placement is invalid.
         """
-        if not self._is_placement_valid(blokus_placement_list):
-            raise InvalidPlacementError(self, blokus_placement_list)
+        if not self._is_placement_valid(cells_list):
+            raise InvalidPlacementError(self, cells_list)
 
-        placement_data = BlokusSquareData.get_data(blokus_placement_list, self.is_red_next)
-        for coord in blokus_placement_list:
+        placement_data = BlokusSquareData.get_data(cells_list, self.is_red_next)
+        for coord in cells_list:
             self._board.set(coord, placement_data)
 
-        placement_num = len(blokus_placement_list)
+        placement_num = len(cells_list)
         if self.is_red_next:
             self.red_remaining[placement_num - 3] -= 1
             self._has_red_played = True
