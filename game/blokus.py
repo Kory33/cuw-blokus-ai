@@ -201,5 +201,13 @@ class BlokusGame:
         Obtain all the possible placements.
         The color for the test is automatically determined from the current board status.
         """
-        # TODO implementation
+        results = []
+        initiatable_cells = []
+
+        for column in range(self._board.get_size()):
+            for row in range(self._board.get_size()):
+                cell = [column, row]
+                if self._is_available(cell) and self._is_same_color_on_corner(cell):
+                    initiatable_cells.append(cell)
+
         return None
