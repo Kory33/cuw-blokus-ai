@@ -161,6 +161,15 @@ class BlokusGame:
                 not self._is_same_color_found_on(cells, side_vectors) and
                 self._is_source_in_hand(cells_num))
 
+    def _is_available(self, cell):
+        """
+        Returns True when the player can place on the specified cell.
+        This method only does empty check and adjacent-not-same-color check.
+        """
+        side_vectors = [[1, 0], [0, 1], [-1, 0], [0, -1]]
+        return (self._is_placement_target_empty([cell]) and
+                not self._is_same_color_found_on([cell], side_vectors))
+
     def place(self, cells_list):
         """
         Execute a given placement.
