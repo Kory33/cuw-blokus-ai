@@ -50,11 +50,6 @@ class BlokusBoard:
         self._size = size
         self._board = [[BlokusSquareData.EMPTY] * size] * size
 
-        self.has_red_played = False
-        self.has_blue_played = False
-
-        self.is_red_next = True
-
     def get_placement_at(self, coordinate):
         """
         Obtain the placement at the specified coordinate on the board.
@@ -70,6 +65,21 @@ class BlokusBoard:
     def get_size(self):
         """Obtain the size of the board."""
         return self._size
+
+    def set(self, cell, data):
+        """Set the data to the specified cell"""
+        self._board[cell[0]][cell[1]] = data
+
+class BlokusGame:
+    """Class which represents a game session."""
+
+    def __init__(self, board_size=12):
+        self._board = BlokusBoard(size=board_size)
+        self.has_red_played = False
+        self.has_blue_played = False
+
+        self.is_red_next = True
+
 
     def _is_placement_continuous(self, placement):
         placement_num = len(placement)
@@ -92,7 +102,7 @@ class BlokusBoard:
 
     def _is_placement_target_empty(self, placement_list):
         for placement in placement_list:
-            old_placement = self.get_placement_at(placement)
+            old_placement = self._board.get_placement_at(placement)
             if old_placement is not BlokusSquareData.EMPTY:
                 return False
         return True
@@ -115,7 +125,7 @@ class BlokusBoard:
                 # check if the cell is on a corner of existing player region
                 for vector in corner_vectors:
                     target_coord = [cell[0] + vector[0], cell[1] + vector[1]]
-                    target_cell = self.get_placement_at(target_coord)
+                    target_cell = self._board.get_placement_at(target_coord)
 
                     if self.is_red_next:
                         is_on_corner = target_cell.is_red()
@@ -128,7 +138,7 @@ class BlokusBoard:
             # check that the cell is not on a side of existing player region
             for vector in adjacent_vectors:
                 target_coord = [cell[0] + vector[0], cell[1] + vector[1]]
-                target_cell = self.get_placement_at(target_coord)
+                target_cell = self._board.get_placement_at(target_coord)
 
                 if self.is_red_next and target_cell.is_red():
                     return False
@@ -159,13 +169,12 @@ class BlokusBoard:
 
         placement_data = BlokusSquareData.get_data(blokus_placement_list, self.is_red_next)
         for coord in blokus_placement_list:
-            self._board[coord[0]][coord[1]] = placement_data
+            self._board.set(coord, placement_data)
+
+        if self.is_red_next:
+            self.has_red_played = True
+        else:
+            self.has_blue_played = True
 
         self.is_red_next = not self.is_red_next
         return True
-
-class BlokusGame:
-    """Class which represents a game session."""
-
-    def __init__(self, board_size=12):
-        self._board = BlokusBoard(size=board_size)
