@@ -145,19 +145,22 @@ class BlokusGame:
             checktarget = self.blue_remaining
         return checktarget[len(cells) - 3] > 0
 
+    def _is_same_color_on_corner(self, cells):
+        return self._is_same_color_found_on(cells, [[1, 1], [-1, 1], [-1, -1], [1, -1]])
+
+    def _is_same_color_on_side(self, cells):
+        return self._is_same_color_found_on(cells, [[1, 0], [0, 1], [-1, 0], [0, -1]])
+
     def _is_placement_valid(self, cells):
         cells_num = len(cells)
         if cells_num < 3 or cells_num > 5:
             return False
 
-        corner_vectors = [[1, 1], [-1, 1], [-1, -1], [1, -1]]
-        side_vectors = [[1, 0], [0, 1], [-1, 0], [0, -1]]
-
         return (self._is_placement_continuous(cells) and
                 self._is_placement_target_empty(cells) and
                 (self._is_first_cell_covered(cells) or
-                 self._is_same_color_found_on(cells, corner_vectors)) and
-                not self._is_same_color_found_on(cells, side_vectors) and
+                 self._is_same_color_on_corner(cells)) and
+                not self._is_same_color_on_side(cells) and
                 self._is_source_in_hand(cells_num))
 
     def _is_available(self, cell):
