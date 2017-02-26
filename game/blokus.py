@@ -173,21 +173,21 @@ class BlokusGame:
         return (self._is_placement_target_empty({cell}) and
                 not self._is_same_color_on_side({cell}))
 
-    def place(self, cells_list):
+    def place(self, cells_set):
         """
         Execute a given placement.
         Returns True when placed successfully.
 
         Raises InvalidPlacementError when the placement is invalid.
         """
-        if not self._is_placement_valid(cells_list):
-            raise InvalidPlacementError(self, cells_list)
+        if not self._is_placement_valid(cells_set):
+            raise InvalidPlacementError(self, cells_set)
 
-        placement_data = BlokusSquareData.get_data(cells_list, self.is_red_next)
-        for coord in cells_list:
+        placement_data = BlokusSquareData.get_data(cells_set, self.is_red_next)
+        for coord in cells_set:
             self._board.set(coord, placement_data)
 
-        placement_num = len(cells_list)
+        placement_num = len(cells_set)
         if self.is_red_next:
             self.red_remaining[placement_num - 3] -= 1
             self._has_red_played = True
