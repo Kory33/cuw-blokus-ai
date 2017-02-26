@@ -216,11 +216,14 @@ class BlokusGame:
 
         return initiatable_cells
 
-    def _search(self, placement_chain, remaining_search_size, _search_result):
+    def _search(self, placement_chain, remaining_search_size):
+        """
+        Returns all the placement pattern which can be created
+        by adding `remaining_search_size` number of cells around the given placement chain.
+        """
         search_direction = {(1, 0), (0, 1), (-1, 0), (0, -1)}
 
-        # copy the existing search result
-        search_result = set(_search_result)
+        search_result = set()
 
         # if the search should be terminated
         if remaining_search_size is 0:
@@ -234,7 +237,7 @@ class BlokusGame:
 
                 new_chain = placement_chain.copy()
                 new_chain.add(new_cell)
-                deeper_chains = self._search(new_chain, remaining_search_size - 1, search_result)
+                deeper_chains = self._search(new_chain, remaining_search_size - 1)
 
                 search_result.update(deeper_chains)
 
@@ -253,7 +256,7 @@ class BlokusGame:
                 continue
 
             for cell in initiatable_cells:
-                placements = self._search({(cell[0], cell[1])}, chain_size - 1, set())
+                placements = self._search({(cell[0], cell[1])}, chain_size - 1)
                 results.update(placements)
 
         return results
