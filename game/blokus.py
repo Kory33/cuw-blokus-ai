@@ -196,6 +196,10 @@ class BlokusGame:
         self.is_red_next = not self.is_red_next
         return True
 
+    def _search(self, placement_chain, remaining_search_size, search_result):
+        # TODO implementation
+        pass
+
     def get_all_possible_placements(self):
         """
         Obtain all the possible placements.
@@ -204,10 +208,20 @@ class BlokusGame:
         results = []
         initiatable_cells = []
 
+        # Obtain all the cells from which the placement can be started
         for column in range(self._board.get_size()):
             for row in range(self._board.get_size()):
                 cell = [column, row]
                 if self._is_available(cell) and self._is_same_color_on_corner(cell):
                     initiatable_cells.append(cell)
 
-        return None
+        for chain_size in range(3, 6):
+            for cell in initiatable_cells:
+                if not self._is_source_in_hand([-1] * chain_size):
+                    continue
+                placements = self._search([cell], chain_size - 1, [])
+                for placement in placements:
+                    if placement not in results:
+                        results.append(placement)
+
+        return results
