@@ -19,15 +19,11 @@ class BlokusSquareData(Enum):
 
     def is_red(self):
         """Returns True if the data represents Red cell"""
-        return self is BlokusSquareData.RED_3 or \
-            self is BlokusSquareData.RED_4 or \
-            self is BlokusSquareData.RED_5
+        return self.value > 0
 
     def is_blue(self):
         """Returns True if the data represents Blue cell"""
-        return self is BlokusSquareData.BLUE_3 or \
-            self is BlokusSquareData.BLUE_4 or \
-            self is BlokusSquareData.BLUE_5
+        return self.value < 0
 
     @staticmethod
     def get_data(placement, is_red):
