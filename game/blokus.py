@@ -212,13 +212,13 @@ class BlokusGame:
                 if new_cell in placement_chain or not self._is_available(new_cell):
                     continue
 
-                new_chain = placement_chain + [new_cell]
+                new_chain = placement_chain.append(new_cell)
                 deeper_chains = self._search(new_chain, remaining_search_size - 1, search_result)
 
                 # append search results
                 for chain in deeper_chains:
                     if chain not in search_result:
-                        search_result += [chain]
+                        search_result.append(chain)
 
         return search_result
 
