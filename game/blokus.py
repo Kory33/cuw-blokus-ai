@@ -218,28 +218,26 @@ class BlokusGame:
         return initiatable_cells
 
     def _search(self, placement_chain, remaining_search_size, _search_result):
-        search_direction = [[1, 0], [0, 1], [-1, 0], [0, -1]]
+        search_direction = [(1, 0), (0, 1), (-1, 0), (0, -1)]
 
         # copy the existing search result
-        search_result = list(_search_result)
+        search_result = set(_search_result)
 
         # if the search should be terminated
         if remaining_search_size is 0:
-            return [placement_chain]
+            return {frozenset(placement_chain)}
 
         for cell in placement_chain:
             for direction in search_direction:
-                new_cell = [cell[0] + direction[0], cell[1] + direction[1]]
+                new_cell = (cell[0] + direction[0], cell[1] + direction[1])
                 if new_cell in placement_chain or not self._is_available(new_cell):
                     continue
 
-                new_chain = placement_chain + [new_cell]
+                new_chain = placement_chain.copy()
+                new_chain.add(new_cell)
                 deeper_chains = self._search(new_chain, remaining_search_size - 1, search_result)
 
-                # append search results
-                for chain in deeper_chains:
-                    if chain not in search_result:
-                        search_result.append(chain)
+                search_result.update(deeper_chains)
 
         return search_result
 
@@ -248,7 +246,7 @@ class BlokusGame:
         Obtain all the possible placements.
         The color for the test is automatically determined from the current board status.
         """
-        results = []
+        results = set()
         initiatable_cells = self._get_initiatable_cells()
 
         for chain_size in range(3, 6):
@@ -256,9 +254,7 @@ class BlokusGame:
                 continue
 
             for cell in initiatable_cells:
-                placements = self._search([cell], chain_size - 1, [])
-                for placement in placements:
-                    if placement not in results:
-                        results.append(placement)
+                placements = self._search({(cell[0], cell[1])}, chain_size - 1, set())
+                results.update(placements)
 
         return results
