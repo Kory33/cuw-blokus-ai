@@ -197,8 +197,27 @@ class BlokusGame:
         return True
 
     def _search(self, placement_chain, remaining_search_size, search_result):
-        # TODO implementation
-        pass
+        search_direction = [[1, 0], [0, 1], [-1, 0], [0, -1]]
+
+        # if the search should be terminated
+        if remaining_search_size is 0:
+            return [placement_chain]
+
+        for cell in placement_chain:
+            for direction in search_direction:
+                new_cell = [cell[0] + direction[0], cell[1] + direction[1]]
+                if new_cell in placement_chain or not self._is_available(new_cell):
+                    continue
+
+                new_chain = placement_chain + [new_cell]
+                deeper_chains = self._search(new_chain, remaining_search_size - 1, search_result)
+
+                # append search results
+                for chain in deeper_chains:
+                    if chain not in search_result:
+                        search_result += chain
+
+        return search_result
 
     def get_all_possible_placements(self):
         """
