@@ -196,6 +196,24 @@ class BlokusGame:
         self.is_red_next = not self.is_red_next
         return True
 
+    def _get_initiatable_cells(self):
+        initiatable_cells = []
+
+        if not self._has_red_played and self.is_red_next:
+            return [[2, 2]]
+
+        if not self._has_blue_played and not self.is_red_next:
+            return [[9, 9]]
+
+        # Obtain all the cells from which the placement can be started
+        for column in range(self._board.get_size()):
+            for row in range(self._board.get_size()):
+                cell = [column, row]
+                if self._is_available(cell) and self._is_same_color_on_corner(cell):
+                    initiatable_cells.append(cell)
+
+        return initiatable_cells
+
     def _search(self, placement_chain, remaining_search_size, _search_result):
         search_direction = [[1, 0], [0, 1], [-1, 0], [0, -1]]
 
@@ -228,14 +246,7 @@ class BlokusGame:
         The color for the test is automatically determined from the current board status.
         """
         results = []
-        initiatable_cells = []
-
-        # Obtain all the cells from which the placement can be started
-        for column in range(self._board.get_size()):
-            for row in range(self._board.get_size()):
-                cell = [column, row]
-                if self._is_available(cell) and self._is_same_color_on_corner(cell):
-                    initiatable_cells.append(cell)
+        initiatable_cells = self._get_initiatable_cells()
 
         for chain_size in range(3, 6):
             for cell in initiatable_cells:
