@@ -196,8 +196,11 @@ class BlokusGame:
         self.is_red_next = not self.is_red_next
         return True
 
-    def _search(self, placement_chain, remaining_search_size, search_result):
+    def _search(self, placement_chain, remaining_search_size, _search_result):
         search_direction = [[1, 0], [0, 1], [-1, 0], [0, -1]]
+
+        # copy the existing search result
+        search_result = list(_search_result.copy)
 
         # if the search should be terminated
         if remaining_search_size is 0:
@@ -215,7 +218,7 @@ class BlokusGame:
                 # append search results
                 for chain in deeper_chains:
                     if chain not in search_result:
-                        search_result += chain
+                        search_result += [chain]
 
         return search_result
 
