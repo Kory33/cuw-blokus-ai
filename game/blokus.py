@@ -168,6 +168,9 @@ class BlokusGame:
         Returns True when the player can place on the specified cell.
         This method only does empty check and adjacent-not-same-color check.
         """
+        if not 0 <= cell[0] < 12 or not 0 <= cell[1] < 12:
+            return False
+
         return (self._is_placement_target_empty([cell]) and
                 not self._is_same_color_on_side([cell]))
 
@@ -218,7 +221,7 @@ class BlokusGame:
         search_direction = [[1, 0], [0, 1], [-1, 0], [0, -1]]
 
         # copy the existing search result
-        search_result = list(_search_result.copy)
+        search_result = list(_search_result)
 
         # if the search should be terminated
         if remaining_search_size is 0:
@@ -230,7 +233,7 @@ class BlokusGame:
                 if new_cell in placement_chain or not self._is_available(new_cell):
                     continue
 
-                new_chain = placement_chain.append(new_cell)
+                new_chain = placement_chain + [new_cell]
                 deeper_chains = self._search(new_chain, remaining_search_size - 1, search_result)
 
                 # append search results
@@ -249,9 +252,10 @@ class BlokusGame:
         initiatable_cells = self._get_initiatable_cells()
 
         for chain_size in range(3, 6):
+            if not self._is_source_in_hand([-1] * chain_size):
+                continue
+
             for cell in initiatable_cells:
-                if not self._is_source_in_hand([-1] * chain_size):
-                    continue
                 placements = self._search([cell], chain_size - 1, [])
                 for placement in placements:
                     if placement not in results:
