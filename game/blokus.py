@@ -163,7 +163,7 @@ class BlokusGame:
         Returns True when the player can place on the specified cell.
         This method only does empty check and adjacent-not-same-color check.
         """
-        if not 0 <= cell[0] < 12 or not 0 <= cell[1] < 12:
+        if not 0 <= cell[0] < self._board.get_size() or not 0 <= cell[1] < self._board.get_size():
             return False
 
         return (self._is_placement_target_empty({cell}) and
