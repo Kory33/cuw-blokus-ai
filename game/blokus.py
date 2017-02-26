@@ -86,15 +86,14 @@ class BlokusGame:
     def _is_placement_continuous(self, cells):
         placement_num = len(cells)
 
-        for i in range(placement_num):
-            check_target_cell = cells[i]
+        for check_target_cell in placement_num:
             is_adjacent_found = False
 
-            for j in range(placement_num):
-                if j == i:
+            for adjacent_candidate in placement_num:
+                if check_target_cell == adjacent_candidate:
                     continue
 
-                if distance.manhattan_2d(check_target_cell, cells[j]) == 1:
+                if distance.manhattan_2d(check_target_cell, adjacent_candidate) == 1:
                     is_adjacent_found = True
                     break
 
@@ -113,9 +112,9 @@ class BlokusGame:
         """Returns true if and only if the placement is the first action and
         the beginning cell is covered."""
         if self.is_red_next:
-            return self._has_red_played and ([2, 2] in cells)
+            return self._has_red_played and ((2, 2) in cells)
         else:
-            return self._has_blue_played and ([9, 9] in cells)
+            return self._has_blue_played and ((9, 9) in cells)
 
     def _is_same_color_found_on(self, cells, direction_vectors):
         """
@@ -127,7 +126,7 @@ class BlokusGame:
         """
         for cell in cells:
             for vector in direction_vectors:
-                target_coord = [cell[0] + vector[0], cell[1] + vector[1]]
+                target_coord = (cell[0] + vector[0], cell[1] + vector[1])
                 target_cell_data = self._board.get_data_at(target_coord)
 
                 if self.is_red_next and target_cell_data.is_red():
@@ -146,10 +145,10 @@ class BlokusGame:
         return checktarget[len(cells) - 3] > 0
 
     def _is_same_color_on_corner(self, cells):
-        return self._is_same_color_found_on(cells, [[1, 1], [-1, 1], [-1, -1], [1, -1]])
+        return self._is_same_color_found_on(cells, {(1, 1), (-1, 1), (-1, -1), (1, -1)})
 
     def _is_same_color_on_side(self, cells):
-        return self._is_same_color_found_on(cells, [[1, 0], [0, 1], [-1, 0], [0, -1]])
+        return self._is_same_color_found_on(cells, {(1, 0), (0, 1), (-1, 0), (0, -1)})
 
     def _is_placement_valid(self, cells):
         cells_num = len(cells)
@@ -171,8 +170,8 @@ class BlokusGame:
         if not 0 <= cell[0] < 12 or not 0 <= cell[1] < 12:
             return False
 
-        return (self._is_placement_target_empty([cell]) and
-                not self._is_same_color_on_side([cell]))
+        return (self._is_placement_target_empty({cell}) and
+                not self._is_same_color_on_side({cell}))
 
     def place(self, cells_list):
         """
@@ -200,25 +199,25 @@ class BlokusGame:
         return True
 
     def _get_initiatable_cells(self):
-        initiatable_cells = []
+        initiatable_cells = set()
 
         if not self._has_red_played and self.is_red_next:
-            return [[2, 2]]
+            return {(2, 2)}
 
         if not self._has_blue_played and not self.is_red_next:
-            return [[9, 9]]
+            return {(9, 9)}
 
         # Obtain all the cells from which the placement can be started
         for column in range(self._board.get_size()):
             for row in range(self._board.get_size()):
-                cell = [column, row]
+                cell = (column, row)
                 if self._is_available(cell) and self._is_same_color_on_corner(cell):
-                    initiatable_cells.append(cell)
+                    initiatable_cells.add(cell)
 
         return initiatable_cells
 
     def _search(self, placement_chain, remaining_search_size, _search_result):
-        search_direction = [(1, 0), (0, 1), (-1, 0), (0, -1)]
+        search_direction = {(1, 0), (0, 1), (-1, 0), (0, -1)}
 
         # copy the existing search result
         search_result = set(_search_result)
@@ -250,7 +249,7 @@ class BlokusGame:
         initiatable_cells = self._get_initiatable_cells()
 
         for chain_size in range(3, 6):
-            if not self._is_source_in_hand([-1] * chain_size):
+            if not self._is_source_in_hand((-1,) * chain_size):
                 continue
 
             for cell in initiatable_cells:
