@@ -179,7 +179,9 @@ class BlokusGame:
     def place(self, cells_set):
         """
         Execute a given placement.
-        Returns True when placed successfully.
+
+        Returns a boolean value indicating if the turn has changed.
+        (The enemy player has skipped the turn if False is returned.)
 
         Raises InvalidPlacementError when the placement is invalid.
         """
@@ -197,6 +199,9 @@ class BlokusGame:
         else:
             self.blue_remaining[placement_num - 3] -= 1
             self._has_blue_played = True
+
+        if len(self.get_all_possible_placements()) is 0:
+            return False
 
         self.is_red_next = not self.is_red_next
         return True
