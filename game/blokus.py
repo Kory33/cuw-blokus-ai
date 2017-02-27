@@ -214,7 +214,7 @@ class BlokusGame:
         for column in range(self._board.get_size()):
             for row in range(self._board.get_size()):
                 cell = (column, row)
-                if self._is_available(cell) and self._is_same_color_on_corner(cell):
+                if self._is_available(cell) and self._is_same_color_on_corner({cell}):
                     initiatable_cells.add(cell)
 
         return initiatable_cells
