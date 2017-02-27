@@ -106,9 +106,9 @@ class BlokusGame:
         """Returns true if and only if the placement is the first action and
         the beginning cell is covered."""
         if self.is_red_next:
-            return self._has_red_played and ((2, 2) in cells)
+            return not self._has_red_played and ((2, 2) in cells)
         else:
-            return self._has_blue_played and ((9, 9) in cells)
+            return not self._has_blue_played and ((9, 9) in cells)
 
     def _is_same_color_found_on(self, cells, direction_vectors):
         """
