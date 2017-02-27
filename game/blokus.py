@@ -45,7 +45,7 @@ class BlokusBoard:
         """
         self._size = size
         self._board = []
-        for i in range(size):
+        for _ in range(size):
             self._board.append([BlokusSquareData.EMPTY] * size)
 
     def get_data_at(self, coordinate):
