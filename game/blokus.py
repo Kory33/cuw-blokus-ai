@@ -44,7 +44,9 @@ class BlokusBoard:
         Hence the board will have 'size ** 2' number of squares.
         """
         self._size = size
-        self._board = [[BlokusSquareData.EMPTY] * size] * size
+        self._board = []
+        for i in range(size):
+            self._board.append([BlokusSquareData.EMPTY] * size)
 
     def get_data_at(self, coordinate):
         """
@@ -65,6 +67,7 @@ class BlokusBoard:
     def set(self, cell, data):
         """Set the data to the specified cell"""
         self._board[cell[0]][cell[1]] = data
+
 
 class BlokusGame:
     """Class which represents a game session."""
