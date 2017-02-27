@@ -254,3 +254,7 @@ class BlokusGame:
                 results.update(placements)
 
         return results
+
+    def get_board(self):
+        """Obtain the board instance"""
+        return self._board
