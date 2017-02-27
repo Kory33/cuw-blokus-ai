@@ -154,7 +154,7 @@ class BlokusGame:
                 (self._is_first_cell_covered(cells) or
                  self._is_same_color_on_corner(cells)) and
                 not self._is_same_color_on_side(cells) and
-                self._is_source_in_hand(cells_num))
+                self._is_source_in_hand(cells))
 
     def _is_available(self, cell):
         """
