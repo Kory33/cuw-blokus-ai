@@ -100,7 +100,7 @@ class BlokusGame:
     def _is_placement_target_empty(self, cells):
         for cell in cells:
             cell_data = self._board.get_data_at(cell)
-            if cell_data is not BlokusSquareData.EMPTY:
+            if cell_data.value is not 0:
                 return False
         return True
 
