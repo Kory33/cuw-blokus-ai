@@ -124,6 +124,12 @@ class BlokusGame:
         for cell in cells:
             for vector in direction_vectors:
                 target_coord = (cell[0] + vector[0], cell[1] + vector[1])
+                if target_coord[0] < 0 or target_coord[0] >= self._board.get_size():
+                    continue
+
+                if target_coord[1] < 0 or target_coord[1] >= self._board.get_size():
+                    continue
+
                 target_cell_data = self._board.get_data_at(target_coord)
 
                 if self.is_red_next and target_cell_data.is_red():
