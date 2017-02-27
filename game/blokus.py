@@ -80,12 +80,10 @@ class BlokusGame:
         self.blue_remaining = [10, 5, 2]
 
     def _is_placement_continuous(self, cells):
-        placement_num = len(cells)
-
-        for check_target_cell in placement_num:
+        for check_target_cell in cells:
             is_adjacent_found = False
 
-            for adjacent_candidate in placement_num:
+            for adjacent_candidate in cells:
                 if check_target_cell == adjacent_candidate:
                     continue
 
