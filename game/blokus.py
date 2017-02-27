@@ -267,3 +267,22 @@ class BlokusGame:
     def get_board(self):
         """Obtain the board instance"""
         return self._board
+
+    def get_cell_counts(self):
+        """
+        Obtain the cell counts on the board.
+
+        Return value is a tuple containing number of cells of
+        red and then blue."""
+
+        count = [0, 0]
+        for column in range(self._board.get_size()):
+            for row in range(self._board.get_size()):
+                cell = (column, row)
+                cell_data = self._board.get_data_at(cell)
+
+                if cell_data.is_red():
+                    count[0] += 1
+                elif cell_data.is_blue():
+                    count[1] += 1
+        return tuple(count)
