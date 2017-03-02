@@ -78,5 +78,5 @@ class BlokusEnvironment:
                 elif cell_data.is_blue():
                     print("B", end="")
                 else:
-                    print("-")
+                    print("-", end="")
             print()
