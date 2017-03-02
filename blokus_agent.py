@@ -10,6 +10,10 @@ import random
 class BlokusAgent(object):
     """
     A class which provides common interfaces of blokus game agent.
+
+    Two methods to be implemented by child classes are:
+     - get_action(self, game_state, action_space)
+     - learn(self, reward, state, is_terminal)
     """
 
     __metaclass__ = ABCMeta
