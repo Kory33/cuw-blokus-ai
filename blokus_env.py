@@ -7,15 +7,13 @@ class BlokusEnvironment:
     """
     A class which provides a learning environment for blokus agents.
     """
-    def __init__(self, red_agent, blue_agent):
+    def __init__(self):
         self.session = BlokusGame()
-        self.red_agent = red_agent
-        self.blue_agent = blue_agent
 
         self.prev_red_action = None
         self.prev_blue_action = None
 
-    def execute_turn(self):
+    def execute_turn(self, red_agent, blue_agent):
         """
         Executes a cycle of play-learn for red/blue agents
 
@@ -23,17 +21,27 @@ class BlokusEnvironment:
         """
         is_terminated = False
 
-        if self.session.is_red_next:
-            agent_action = self.red_agent.get_action(self.session)
-            is_terminated = self.session.place(agent_action)
-            self.prev_red_action = agent_action
-            self.blue_agent.learn(self.prev_blue_action, len(agent_action), is_terminated)
+        # execute learning / action-selection process for red agent
+        if self.session.is_red_next is True:
+            if self.prev_red_action is not None:
+                reward = len(self.prev_red_action) - len(self.prev_blue_action)
+                red_agent.learn(reward, self.session, False)
 
-        if not self.session.is_red_next:
-            agent_action = self.blue_agent.get_action(self.session)
+            agent_action = red_agent.get_action(self.session)
+            is_terminated = self.session.place(agent_action)
+
+            self.prev_red_action = agent_action
+
+        # execute learning / action-selection process for blue agent
+        if self.session.is_red_next is False:
+            if self.prev_blue_action is not None:
+                reward = len(self.prev_blue_action) - len(self.prev_blue_action)
+                blue_agent.learn(reward, self.session, False)
+
+            agent_action = blue_agent.get_action(self.session)
             self.session.place(agent_action)
+
             self.prev_blue_action = agent_action
-            self.red_agent.learn(self.prev_blue_action, len(agent_action), is_terminated)
 
         return is_terminated
 
