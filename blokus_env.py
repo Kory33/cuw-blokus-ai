@@ -41,7 +41,7 @@ class BlokusEnvironment:
             agent_action = agent.get_action(self.session, action_space)
 
             # execute the agent's action
-            self.session.place(agent_action)
+            self.session.place(agent_action, check=False)
             self.session.change_turn()
 
             # update the action cache

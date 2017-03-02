@@ -6,7 +6,7 @@ from enum import Enum
 
 from game.blokus_exception import InvalidPlacementError
 import game.distance as distance
-
+    
 class BlokusSquareData(Enum):
     """Class which represents a data in a square of the blokus board."""
     EMPTY = 0
@@ -122,8 +122,9 @@ class BlokusGame:
         relative vector from the inspect target to the check direction.
         """
         for cell in cells:
+            cell_x, cell_y = cell
             for vector in direction_vectors:
-                target_x_coord, target_y_coord = cell[0] + vector[0], cell[1] + vector[1]
+                target_x_coord, target_y_coord = cell_x + vector[0], cell_y + vector[1]
 
                 if target_x_coord < 0 or target_x_coord >= self._board_size:
                     continue
@@ -179,15 +180,17 @@ class BlokusGame:
         return (self._is_placement_target_empty({cell}) and
                 not self._is_same_color_on_side({cell}))
 
-    def place(self, cells_set):
+    def place(self, cells_set, check=True):
         """
         Execute a given placement.
+
+        Setting check argument disables validation against the placement.
 
         Returns True on success.
 
         Raises InvalidPlacementError when the placement is invalid.
         """
-        if not self._is_placement_valid(cells_set):
+        if check and not self._is_placement_valid(cells_set):
             raise InvalidPlacementError(self, cells_set)
 
         placement_data = BlokusSquareData.get_data(cells_set, self.is_red_next)
