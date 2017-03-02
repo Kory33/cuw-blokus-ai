@@ -10,8 +10,7 @@ class BlokusEnvironment:
     def __init__(self):
         self.session = BlokusGame()
 
-        self.prev_red_action = None
-        self.prev_blue_action = None
+        self.prev_actions = {"red": None, "blue": None}
 
     def execute_turn(self, red_agent, blue_agent):
         """
@@ -19,33 +18,36 @@ class BlokusEnvironment:
 
         Returns a boolean value indicating if the game has terminated.
         """
-        is_terminated = False
+        is_game_continued = False
 
-        # execute learning / action-selection process for red agent
-        if self.session.is_red_next is True:
-            if self.prev_red_action is not None:
-                reward = len(self.prev_red_action) - len(self.prev_blue_action)
-                red_agent.learn(reward, self.session, False)
+        for agent in [red_agent, blue_agent]:
+            agent_color = "red" if agent is red_agent else "blue"
+            opponent_color = "red" if agent_color is "blue" else "blue"
 
             action_space = self.session.get_all_possible_placements()
-            agent_action = red_agent.get_action(self.session, action_space)
-            is_terminated = self.session.place(agent_action)
 
-            self.prev_red_action = agent_action
+            # skip the turn if there's nothing to be done.
+            if len(action_space) is 0:
+                self.session.change_turn()
+                continue
 
-        # execute learning / action-selection process for blue agent
-        if self.session.is_red_next is False:
-            if self.prev_blue_action is not None:
-                reward = len(self.prev_blue_action) - len(self.prev_blue_action)
-                blue_agent.learn(reward, self.session, False)
+            # execute learning cycle
+            if self.prev_actions[agent_color] is not None:
+                reward = len(self.prev_actions[opponent_color] - self.prev_actions[agent_color])
+                agent.learn(reward, self.session, False)
 
-            action_space = self.session.get_all_possible_placements()
-            agent_action = blue_agent.get_action(self.session, action_space)
+            is_game_continued = True
+
+            agent_action = agent.get_action(self.session, action_space)
+
+            # execute the agent's action
             self.session.place(agent_action)
+            self.session.change_turn()
 
-            self.prev_blue_action = agent_action
+            # update the action cache
+            self.prev_actions[agent_color] = agent_action
 
-        return is_terminated
+        return is_game_continued
 
     def render_console(self):
         """

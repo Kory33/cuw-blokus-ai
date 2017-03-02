@@ -180,7 +180,7 @@ class BlokusGame:
         """
         Execute a given placement.
 
-        Returns a boolean value indicating if the game can be continued after the execution.
+        Returns True on success.
 
         Raises InvalidPlacementError when the placement is invalid.
         """
@@ -199,22 +199,13 @@ class BlokusGame:
             self.blue_remaining[placement_num - 3] -= 1
             self._has_blue_played = True
 
-        # revert the turn
-        self.is_red_next = not self.is_red_next
-
-        # if the next player has placement, return true.
-        if len(self.get_all_possible_placements()) is not 0:
-            return True
-
-        # revert back the next player if the current player has no way of placing.
-        self.is_red_next = not self.is_red_next
-
-        # if the next player does (hence bothe the players do) not have any move
-        if len(self.get_all_possible_placements()) is 0:
-            self.is_red_next = None
-            return False
-
         return True
+
+    def change_turn(self):
+        """
+        Invert the turn.
+        """
+        self.is_red_next = not self.is_red_next
 
     def _get_initiatable_cells(self):
         initiatable_cells = set()
