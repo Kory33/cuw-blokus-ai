@@ -180,7 +180,7 @@ class BlokusGame:
         """
         Execute a given placement.
 
-        Returns a boolean value indicating if the game has terminated.
+        Returns a boolean value indicating if the game can be continued after the execution.
 
         Raises InvalidPlacementError when the placement is invalid.
         """
