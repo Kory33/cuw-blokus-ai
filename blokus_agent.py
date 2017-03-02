@@ -64,7 +64,7 @@ class RandomBlokusAgent(BlokusAgent):
         super(RandomBlokusAgent, self).__init__()
 
     def get_action(self, game_state, action_space):
-        return random.choice(action_space)
+        return random.sample(action_space, 1)[0]
 
     def learn(self, reward, state, is_terminal):
         pass
