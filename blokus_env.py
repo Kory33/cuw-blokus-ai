@@ -27,7 +27,8 @@ class BlokusEnvironment:
                 reward = len(self.prev_red_action) - len(self.prev_blue_action)
                 red_agent.learn(reward, self.session, False)
 
-            agent_action = red_agent.get_action(self.session)
+            action_space = self.session.get_all_possible_placements()
+            agent_action = red_agent.get_action(self.session, action_space)
             is_terminated = self.session.place(agent_action)
 
             self.prev_red_action = agent_action
@@ -38,7 +39,8 @@ class BlokusEnvironment:
                 reward = len(self.prev_blue_action) - len(self.prev_blue_action)
                 blue_agent.learn(reward, self.session, False)
 
-            agent_action = blue_agent.get_action(self.session)
+            action_space = self.session.get_all_possible_placements()
+            agent_action = blue_agent.get_action(self.session, action_space)
             self.session.place(agent_action)
 
             self.prev_blue_action = agent_action
