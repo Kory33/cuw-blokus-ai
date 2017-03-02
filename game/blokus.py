@@ -74,6 +74,7 @@ class BlokusGame:
 
     def __init__(self, board_size=12):
         self._board = BlokusBoard(size=board_size)
+        self._board_size = board_size
         self._has_red_played = False
         self._has_blue_played = False
 
@@ -100,8 +101,7 @@ class BlokusGame:
 
     def _is_placement_target_empty(self, cells):
         for cell in cells:
-            cell_data = self._board.get_data_at(cell)
-            if cell_data.value is not 0:
+            if self._board._board[cell[0]][cell[1]].value != 0:
                 return False
         return True
 
@@ -123,19 +123,22 @@ class BlokusGame:
         """
         for cell in cells:
             for vector in direction_vectors:
-                target_coord = (cell[0] + vector[0], cell[1] + vector[1])
-                if target_coord[0] < 0 or target_coord[0] >= self._board.get_size():
+                target_x_coord, target_y_coord = cell[0] + vector[0], cell[1] + vector[1]
+
+                if target_x_coord < 0 or target_x_coord >= self._board_size:
                     continue
 
-                if target_coord[1] < 0 or target_coord[1] >= self._board.get_size():
+                if target_y_coord < 0 or target_y_coord >= self._board_size:
                     continue
 
-                target_cell_data = self._board.get_data_at(target_coord)
+                target_cell_data_value = self._board._board[target_x_coord][target_y_coord].value
 
-                if self.is_red_next and target_cell_data.is_red():
-                    return True
-                elif not self.is_red_next and target_cell_data.is_blue():
-                    return True
+                if self.is_red_next:
+                    if target_cell_data_value > 0:
+                        return True
+                else:
+                    if target_cell_data_value < 0:
+                        return True
 
         return False
 
@@ -279,7 +282,8 @@ class BlokusGame:
         Obtain the cell counts on the board.
 
         Return value is a tuple containing number of cells of
-        red and then blue."""
+        red and then blue.
+        """
 
         count = [0, 0]
         for column in range(self._board.get_size()):
