@@ -6,7 +6,7 @@ from enum import Enum
 
 from game.blokus_exception import InvalidPlacementError
 import game.distance as distance
-
+    
 class BlokusSquareData(Enum):
     """Class which represents a data in a square of the blokus board."""
     EMPTY = 0
@@ -74,6 +74,7 @@ class BlokusGame:
 
     def __init__(self, board_size=12):
         self._board = BlokusBoard(size=board_size)
+        self._board_size = board_size
         self._has_red_played = False
         self._has_blue_played = False
 
@@ -100,8 +101,7 @@ class BlokusGame:
 
     def _is_placement_target_empty(self, cells):
         for cell in cells:
-            cell_data = self._board.get_data_at(cell)
-            if cell_data.value is not 0:
+            if self._board._board[cell[0]][cell[1]].value != 0:
                 return False
         return True
 
@@ -122,20 +122,24 @@ class BlokusGame:
         relative vector from the inspect target to the check direction.
         """
         for cell in cells:
+            cell_x, cell_y = cell
             for vector in direction_vectors:
-                target_coord = (cell[0] + vector[0], cell[1] + vector[1])
-                if target_coord[0] < 0 or target_coord[0] >= self._board.get_size():
+                target_x_coord, target_y_coord = cell_x + vector[0], cell_y + vector[1]
+
+                if target_x_coord < 0 or target_x_coord >= self._board_size:
                     continue
 
-                if target_coord[1] < 0 or target_coord[1] >= self._board.get_size():
+                if target_y_coord < 0 or target_y_coord >= self._board_size:
                     continue
 
-                target_cell_data = self._board.get_data_at(target_coord)
+                target_cell_data_value = self._board._board[target_x_coord][target_y_coord].value
 
-                if self.is_red_next and target_cell_data.is_red():
-                    return True
-                elif not self.is_red_next and target_cell_data.is_blue():
-                    return True
+                if self.is_red_next:
+                    if target_cell_data_value > 0:
+                        return True
+                else:
+                    if target_cell_data_value < 0:
+                        return True
 
         return False
 
@@ -176,15 +180,17 @@ class BlokusGame:
         return (self._is_placement_target_empty({cell}) and
                 not self._is_same_color_on_side({cell}))
 
-    def place(self, cells_set):
+    def place(self, cells_set, check=True):
         """
         Execute a given placement.
+
+        Setting check argument disables validation against the placement.
 
         Returns True on success.
 
         Raises InvalidPlacementError when the placement is invalid.
         """
-        if not self._is_placement_valid(cells_set):
+        if check and not self._is_placement_valid(cells_set):
             raise InvalidPlacementError(self, cells_set)
 
         placement_data = BlokusSquareData.get_data(cells_set, self.is_red_next)
@@ -207,7 +213,7 @@ class BlokusGame:
         """
         self.is_red_next = not self.is_red_next
 
-    def _get_initiatable_cells(self):
+    def _get_initiatable_cells(self, placeable_table):
         initiatable_cells = set()
 
         if not self._has_red_played and self.is_red_next:
@@ -220,12 +226,12 @@ class BlokusGame:
         for column in range(self._board.get_size()):
             for row in range(self._board.get_size()):
                 cell = (column, row)
-                if self._is_available(cell) and self._is_same_color_on_corner({cell}):
+                if placeable_table[column][row] and self._is_same_color_on_corner({cell}):
                     initiatable_cells.add(cell)
 
         return initiatable_cells
 
-    def _search(self, placement_chain, remaining_search_size):
+    def _search(self, board_state_cache, placement_chain, remaining_search_size):
         """
         Returns all the placement pattern which can be created
         by adding `remaining_search_size` number of cells around the given placement chain.
@@ -235,18 +241,27 @@ class BlokusGame:
         search_result = set()
 
         # if the search should be terminated
-        if remaining_search_size is 0:
+        if remaining_search_size == 0:
             return {frozenset(placement_chain)}
 
         for cell in placement_chain:
             for direction in search_direction:
-                new_cell = (cell[0] + direction[0], cell[1] + direction[1])
-                if new_cell in placement_chain or not self._is_available(new_cell):
+                new_cell = cell[0] + direction[0], cell[1] + direction[1]
+                new_x_coord, new_y_coord = new_cell
+
+                if new_x_coord < 0 or new_x_coord >= self._board_size:
+                    continue
+
+                if new_y_coord < 0 or new_y_coord >= self._board_size:
+                    continue
+
+                if new_cell in placement_chain or not board_state_cache[new_x_coord][new_y_coord]:
                     continue
 
                 new_chain = placement_chain.copy()
                 new_chain.add(new_cell)
-                deeper_chains = self._search(new_chain, remaining_search_size - 1)
+                deeper_chains = self._search(board_state_cache,
+                                             new_chain, remaining_search_size - 1)
 
                 search_result.update(deeper_chains)
 
@@ -258,14 +273,23 @@ class BlokusGame:
         The color for the test is automatically determined from the current board status.
         """
         results = set()
-        initiatable_cells = self._get_initiatable_cells()
+
+        # create a cache for availability of the cells
+        board_state_cache = []
+        for x_coord in range(self._board_size):
+            column = []
+            for y_coord in range(self._board_size):
+                column.append(self._is_available((x_coord, y_coord)))
+            board_state_cache.append(column)
+
+        initiatable_cells = self._get_initiatable_cells(board_state_cache)
 
         for chain_size in range(3, 6):
             if not self._is_source_in_hand((-1,) * chain_size):
                 continue
 
             for cell in initiatable_cells:
-                placements = self._search({(cell[0], cell[1])}, chain_size - 1)
+                placements = self._search(board_state_cache, {(cell[0], cell[1])}, chain_size - 1)
                 results.update(placements)
 
         return results
@@ -279,7 +303,8 @@ class BlokusGame:
         Obtain the cell counts on the board.
 
         Return value is a tuple containing number of cells of
-        red and then blue."""
+        red and then blue.
+        """
 
         count = [0, 0]
         for column in range(self._board.get_size()):

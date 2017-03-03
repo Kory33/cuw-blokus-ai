@@ -2,6 +2,7 @@
 A module which provides a learning environment for blokus agents.
 """
 from game.blokus import BlokusGame
+from termcolor import colored
 
 class BlokusEnvironment:
     """
@@ -33,7 +34,7 @@ class BlokusEnvironment:
 
             # execute learning cycle
             if self.prev_actions[agent_color] is not None:
-                reward = len(self.prev_actions[opponent_color] - self.prev_actions[agent_color])
+                reward = 0
                 agent.learn(reward, self.session, False)
 
             is_game_continued = True
@@ -41,7 +42,7 @@ class BlokusEnvironment:
             agent_action = agent.get_action(self.session, action_space)
 
             # execute the agent's action
-            self.session.place(agent_action)
+            self.session.place(agent_action, check=False)
             self.session.change_turn()
 
             # update the action cache
@@ -76,9 +77,9 @@ class BlokusEnvironment:
             for column in range(size):
                 cell_data = board.get_data_at((column, row))
                 if cell_data.is_red():
-                    print("R", end="")
+                    print(colored("R", "red"), end="")
                 elif cell_data.is_blue():
-                    print("B", end="")
+                    print(colored("B", "blue"), end="")
                 else:
                     print("-", end="")
             print()
