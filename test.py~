@@ -1,0 +1,18 @@
+import blokus_agent
+from blokus_env import BlokusEnvironment
+import time
+import numpy as np
+
+def remaining_average(num_trials):
+    start = time.time()
+    sum_remaining = 0
+    for i in range(num_trials):
+        env = BlokusEnvironment()
+        red_agent, blue_agent = blokus_agent.RandomBlokusAgent(), blokus_agent.RandomBlokusAgent()
+        while env.execute_turn(red_agent, blue_agent):
+            pass
+
+        sum_remaining += np.dot(env.session.red_remaining, [3, 4, 5])
+        print("completed " + str(i + 1) + " episodes")
+    print("In average, one episode took " + str((time.time() - start) / num_trials) + " seconds.")
+    return sum_remaining / num_trials

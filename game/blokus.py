@@ -210,7 +210,7 @@ class BlokusGame:
         """
         self.is_red_next = not self.is_red_next
 
-    def _get_initiatable_cells(self):
+    def _get_initiatable_cells(self, placeable_table):
         initiatable_cells = set()
 
         if not self._has_red_played and self.is_red_next:
@@ -223,7 +223,7 @@ class BlokusGame:
         for column in range(self._board.get_size()):
             for row in range(self._board.get_size()):
                 cell = (column, row)
-                if self._is_available(cell) and self._is_same_color_on_corner({cell}):
+                if placeable_table[column][row] and self._is_same_color_on_corner({cell}):
                     initiatable_cells.add(cell)
 
         return initiatable_cells
@@ -270,15 +270,16 @@ class BlokusGame:
         The color for the test is automatically determined from the current board status.
         """
         results = set()
-        initiatable_cells = self._get_initiatable_cells()
 
-        # create a cache for 
+        # create a cache for availability of the cells
         board_state_cache = []
         for x_coord in range(self._board_size):
             column = []
             for y_coord in range(self._board_size):
                 column.append(self._is_available((x_coord, y_coord)))
             board_state_cache.append(column)
+
+        initiatable_cells = self._get_initiatable_cells(board_state_cache)
 
         for chain_size in range(3, 6):
             if not self._is_source_in_hand((-1,) * chain_size):
