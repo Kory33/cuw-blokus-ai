@@ -228,7 +228,7 @@ class BlokusGame:
 
         return initiatable_cells
 
-    def _search(self, placement_chain, remaining_search_size):
+    def _search(self, board_state_cache, placement_chain, remaining_search_size):
         """
         Returns all the placement pattern which can be created
         by adding `remaining_search_size` number of cells around the given placement chain.
@@ -243,13 +243,22 @@ class BlokusGame:
 
         for cell in placement_chain:
             for direction in search_direction:
-                new_cell = (cell[0] + direction[0], cell[1] + direction[1])
-                if new_cell in placement_chain or not self._is_available(new_cell):
+                new_cell = cell[0] + direction[0], cell[1] + direction[1]
+                new_x_coord, new_y_coord = new_cell
+
+                if new_x_coord < 0 or new_x_coord >= self._board_size:
+                    continue
+
+                if new_y_coord < 0 or new_y_coord >= self._board_size:
+                    continue
+
+                if new_cell in placement_chain or not board_state_cache[new_x_coord][new_y_coord]:
                     continue
 
                 new_chain = placement_chain.copy()
                 new_chain.add(new_cell)
-                deeper_chains = self._search(new_chain, remaining_search_size - 1)
+                deeper_chains = self._search(board_state_cache,
+                                             new_chain, remaining_search_size - 1)
 
                 search_result.update(deeper_chains)
 
@@ -263,12 +272,20 @@ class BlokusGame:
         results = set()
         initiatable_cells = self._get_initiatable_cells()
 
+        # create a cache for 
+        board_state_cache = []
+        for x_coord in range(self._board_size):
+            column = []
+            for y_coord in range(self._board_size):
+                column.append(self._is_available((x_coord, y_coord)))
+            board_state_cache.append(column)
+
         for chain_size in range(3, 6):
             if not self._is_source_in_hand((-1,) * chain_size):
                 continue
 
             for cell in initiatable_cells:
-                placements = self._search({(cell[0], cell[1])}, chain_size - 1)
+                placements = self._search(board_state_cache, {(cell[0], cell[1])}, chain_size - 1)
                 results.update(placements)
 
         return results
