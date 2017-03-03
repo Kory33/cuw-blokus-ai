@@ -238,7 +238,7 @@ class BlokusGame:
         search_result = set()
 
         # if the search should be terminated
-        if remaining_search_size is 0:
+        if remaining_search_size == 0:
             return {frozenset(placement_chain)}
 
         for cell in placement_chain:
